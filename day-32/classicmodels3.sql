@@ -60,9 +60,79 @@ order by year asc, sales desc;
 -- which country have lowest delay in shipping
 
 -- select * from orders;
+use classicmodels;
 select country, avg(shippeddate - orderdate) as delay
 from orders join customers
 using(customernumber)
+group by country 
+order by delay asc;
+
+-- find country wies sales which is having 3 to 5 characters in country name
+
+select country, sum(priceeach * quantityordered) as sales
+from customers join orders
+using(customernumber) join orderdetails using(ordernumber)
+group by country
+having length(country) between 3 and 5 ;
+
+-- ------------------------------------------------------------------------------------
+
+-- find out less profitable product from each month
+
+use classicmodels;
+-- select * from orderdetails;
+
+SELECT 
+    year,
+    month,
+    productName,
+    profit
+FROM (
+    SELECT 
+        YEAR(o.orderDate) AS year,
+        MONTH(o.orderDate) AS month,
+        p.productName,
+        SUM((od.quantityOrdered * od.priceEach) - (od.quantityOrdered * p.buyPrice)) AS profit,
+        ROW_NUMBER() OVER (PARTITION BY YEAR(o.orderDate), MONTH(o.orderDate) ORDER BY SUM((od.quantityOrdered * od.priceEach) - (od.quantityOrdered * p.buyPrice)) ASC) AS rn
+    FROM
+        orders o
+        JOIN orderdetails od ON o.orderNumber = od.orderNumber
+        JOIN products p ON od.productCode = p.productCode
+    GROUP BY 
+        year, month, p.productName
+) AS ranked_products
+WHERE rn = 1
+ORDER BY 
+    year ASC, month ASC;
+    
+-- --------------------------------------------------------------------------------------
+--  find out the more profitable product from each month,
+SELECT 
+    year,
+    month,
+    productName,
+    profit
+FROM (
+    SELECT 
+        YEAR(o.orderDate) AS year,
+        MONTH(o.orderDate) AS month,
+        p.productName,
+        SUM((od.quantityOrdered * od.priceEach) - (od.quantityOrdered * p.buyPrice)) AS profit,
+        ROW_NUMBER() OVER (PARTITION BY YEAR(o.orderDate), MONTH(o.orderDate) ORDER BY SUM((od.quantityOrdered * od.priceEach) - (od.quantityOrdered * p.buyPrice)) DESC) AS rn
+    FROM
+        orders o
+        JOIN orderdetails od ON o.orderNumber = od.orderNumber
+        JOIN products p ON od.productCode = p.productCode
+    GROUP BY 
+        year, month, p.productName
+) AS ranked_products
+WHERE rn = 1
+ORDER BY 
+    year ASC, month ASC;
+
+-- --------------------------------------------------------------------------------------
+-- which country is having highest sales of each productline
+
 
 
 
