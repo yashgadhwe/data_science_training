@@ -16,7 +16,8 @@ using (customernumber);
 
 -- --------------------------------------------------------------------------------------------
 -- (aggregation function)
--- avg credit limit by each country
+-- av
+-- credit limit by each country
 -- grouping
 
 select country, avg(creditlimit)  as ag 
@@ -61,8 +62,6 @@ order by cnt desc;
 -- --------------------------------------------------------------------------------------------
 
 -- get the most expensive ordervalue
-
-
 
 
 
